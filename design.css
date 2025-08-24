@@ -1,0 +1,287 @@
+/**********************************************************
+ *  PŘEMYSL HORÁK — GALERIE + LIGHTBOX (UNIFORM + NO-ZOOM)
+ *  Čisté, bez kolizí, správné z-indexy, responzivní + a11y.
+ **********************************************************/
+
+/* =========================
+   0) ZÁKLADNÍ PROMĚNNÉ
+========================= */
+:root {
+  --ph-primary: #ed6a5a;
+
+  /* Dlaždice */
+  --tile-radius: 12px;
+  --tile-gap: 1rem;
+  --tile-min: 260px; /* min šířka kachličky v gridu */
+  --tile-ratio: 4/3; /* výchozí poměr dlaždic (1/1, 4/3, 16/9…) */
+
+  /* Lightbox */
+  --lb-bg: rgba(0, 0, 0, 0.92);
+  --lb-z: 9999;
+  --lb-img-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  /* Stacking */
+  --cursor-z: 2000; /* nad nav (~1000), pod lightboxem */
+  --nav-z: 1000; /* pokud máš nav s position, drž kolem tisícovky */
+}
+
+/* =========================
+   1) KURZOR (aby nezacláněl)
+========================= */
+#cursor,
+#cursor-follower {
+  pointer-events: none !important;
+  z-index: var(--cursor-z);
+}
+
+/* (volitelné) Když má navigace moc velký z-index, zmenši ho:
+#siteHeader { position: sticky; top: 0; z-index: var(--nav-z); }
+*/
+
+/* =========================
+   2) GALERIE – KONTEJNER
+========================= */
+.gallery {
+  padding: 3rem 0;
+}
+
+.gallery .container h2 {
+  margin-bottom: 1rem;
+}
+
+/* Jednotná mřížka (všechny karty stejné) */
+.gallery-grid {
+  display: grid;
+  gap: var(--tile-gap);
+  grid-template-columns: repeat(auto-fit, minmax(var(--tile-min), 1fr));
+}
+
+/* Dlaždice */
+.gallery-item {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--tile-radius);
+  cursor: pointer; /* žádná lupa */
+  background: #f2f3f5; /* příjemné pozadí při načítání */
+  aspect-ratio: var(--tile-ratio);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover; /* drží kompozici */
+  object-position: center;
+  transform: none;
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+/* jemný hover může zůstat – klidně smaž, pokud nechceš */
+.gallery-item:hover img {
+  transform: scale(1.03);
+}
+
+/* =========================
+   3) LIGHTBOX (bez zoom efektu)
+========================= */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  display: none; /* defaultně skryto */
+  justify-content: center;
+  align-items: center;
+  background: var(--lb-bg);
+  z-index: var(--lb-z); /* nejvyšší vrstva */
+}
+.lightbox.active {
+  display: flex;
+}
+
+/* dotykové UX: zabraň nechtěným posunům/swipe gestům */
+.lightbox,
+.lightbox * {
+  touch-action: none;
+}
+
+.lightbox-image {
+  max-width: min(92vw, 1400px);
+  max-height: 82vh;
+  border-radius: var(--tile-radius);
+  box-shadow: var(--lb-img-shadow);
+  opacity: 0; /* jen fade-in, žádný scale/translate */
+  transition: opacity 0.2s ease;
+  outline: none;
+  z-index: calc(var(--lb-z) + 1); /* nad pozadím, pod tlačítky */
+}
+.lightbox.active .lightbox-image {
+  opacity: 1;
+}
+
+/* Ovládací tlačítka */
+.lightbox button {
+  position: absolute;
+  z-index: calc(var(--lb-z) + 2); /* vždy nad obrázkem */
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+.lightbox button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.lightbox-close {
+  top: 18px;
+  right: 22px;
+}
+.lightbox-prev {
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.lightbox-next {
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Stav těla při otevřeném lightboxu */
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* =========================
+   4) PŘÍSTUPNOST / REDUKCE POHYBU
+========================= */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item img,
+  .lightbox-image,
+  .lightbox button {
+    transition: none !important;
+  }
+}
+
+/* === Uniform grid + lightbox (no-zoom) === */
+:root {
+  --tile-radius: 12px;
+  --tile-gap: 1rem;
+  --tile-min: 260px;
+  --tile-ratio: 4/3;
+}
+#cursor,
+#cursor-follower {
+  pointer-events: none;
+  z-index: 2000;
+}
+.gallery {
+  padding: 3rem 0;
+}
+.gallery .container h2 {
+  margin-bottom: 1rem;
+}
+.gallery-grid {
+  display: grid;
+  gap: var(--tile-gap);
+  grid-template-columns: repeat(auto-fit, minmax(var(--tile-min), 1fr));
+}
+.gallery-item {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--tile-radius);
+  cursor: pointer;
+  background: #f2f3f5;
+  aspect-ratio: var(--tile-ratio);
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s ease;
+}
+.gallery-item:hover img {
+  transform: scale(1.02);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 9999;
+}
+.lightbox.active {
+  display: flex;
+}
+.lightbox,
+.lightbox * {
+  touch-action: none;
+}
+.lightbox-image {
+  max-width: min(92vw, 1400px);
+  max-height: 82vh;
+  border-radius: var(--tile-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  outline: none;
+  z-index: 10000;
+}
+.lightbox.active .lightbox-image {
+  opacity: 1;
+}
+.lightbox button {
+  position: absolute;
+  z-index: 10001;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.lightbox button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+.lightbox-close {
+  top: 18px;
+  right: 22px;
+}
+.lightbox-prev {
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.lightbox-next {
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+body.no-scroll {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item img,
+  .lightbox-image,
+  .lightbox button {
+    transition: none !important;
+  }
+}
